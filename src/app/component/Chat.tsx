@@ -42,7 +42,7 @@ const Chat = () => {
       alert('Please provide a message or a file');
       return;
     } 
-    let pref=file? file?.name+" " : "";
+    const pref=file? file?.name+" " : "";
     
     const messageData = {
       user: 'Msg', // Replace with actual user data
