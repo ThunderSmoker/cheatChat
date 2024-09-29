@@ -5,7 +5,7 @@ import Message from '../../models/Message'; // Create a message model
 // Connect to MongoDB
 const connectDB = async () => {
   if (mongoose.connection.readyState >= 1) return;
-  await mongoose.connect(process.env.MONGODB_URI);
+  await mongoose.connect(process.env.MONGODB_URI? process.env.MONGODB_URI : '');
 };
 
 export async function POST(request: Request) {
