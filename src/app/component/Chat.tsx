@@ -25,7 +25,7 @@ const Chat = () => {
     setMessages(response.data);
   };
 
-  useEffect(() => {
+  useEffect(() => { 
     fetchMessages();
   }, []);
 
@@ -40,44 +40,49 @@ const Chat = () => {
       alert('Please provide a message or a file');
       return;
     }
-
+  
     let fileUrl = null;
-
+  
     if (file) {
       const storageRef = ref(storage, `files/${file.name}`);
       const uploadTask = uploadBytesResumable(storageRef, file);
-
-      // Monitor the upload progress
-      uploadTask.on('state_changed',
-        (snapshot) => {
-          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-          setUploadProgress(progress); // Update the upload progress state
-        },
-        (error) => {
-          console.error('Upload error:', error);
-          setUploadProgress(null); // Reset progress on error
-        },
-        async () => {
-          const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-          fileUrl = downloadURL;
-          setUploadProgress(null); // Reset progress after upload completion
-        }
-      );
+  
+      // Wait for the file upload to complete and get the download URL
+      fileUrl = await new Promise<string>((resolve, reject) => {
+        uploadTask.on(
+          'state_changed',
+          (snapshot) => {
+            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+            setUploadProgress(progress); // Update the upload progress state
+          },
+          (error) => {
+            console.error('Upload error:', error);
+            setUploadProgress(null); // Reset progress on error
+            reject(error); // Reject the promise on error
+          },
+          async () => {
+            const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+            setUploadProgress(null); // Reset progress after upload completion
+            resolve(downloadURL); // Resolve the promise with the download URL
+          }
+        );
+      });
     }
-
+  
     const pref = file ? file?.name + " " : "";
-
+  
+    // Now send the message with the file URL to your backend
     const response = await axios.post('/api/messages', {
       user: 'Msg', // Replace with actual user data
       text: pref + message || file?.name,
-      file: fileUrl,
+      file: fileUrl, // Send the Firebase download URL to the backend
     });
-
+  
     setMessages((prevMessages) => [...prevMessages, response.data]);
     setMessage('');
     setFile(null);
   };
-
+  
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text)
       .then(() => console.log('Message copied to clipboard!'))
