@@ -131,7 +131,8 @@ const Chat = () => {
               >
                 🗑️
               </span>
-              <strong>{msg.user}: <br /><br /></strong>{msg.text}
+              <strong>{msg.user}: <br /><br /></strong>
+              <span style={{ whiteSpace: 'pre-wrap' }}>{msg.text}</span>
             </p>
             {msg.file && (
               <a
