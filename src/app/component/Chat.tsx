@@ -14,7 +14,9 @@ const Chat = () => {
   }
 
   const [messages, setMessages] = useState<Message[]>([]);
+  const [filteredMessages, setFilteredMessages] = useState<Message[]>([]);
   const [message, setMessage] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
   const [file, setFile] = useState<File | null>(null);
   const [uploadProgress, setUploadProgress] = useState<number | null>(null); // New state for upload progress
 
@@ -23,11 +25,24 @@ const Chat = () => {
   const fetchMessages = async () => {
     const response = await axios.get('/api/messages');
     setMessages(response.data);
+    setFilteredMessages(response.data);
   };
 
   useEffect(() => { 
     fetchMessages();
   }, []);
+
+  // Filter messages when search query changes
+  useEffect(() => {
+    if (searchQuery.trim() === '') {
+      setFilteredMessages(messages);
+    } else {
+      const filtered = messages.filter(msg => 
+        msg.text.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+      setFilteredMessages(filtered);
+    }
+  }, [searchQuery, messages]);
 
   useEffect(() => {
     if (lastMessageRef.current) {
@@ -108,13 +123,13 @@ const Chat = () => {
   };
 
   return (
-    <div className="chat-container">
-      <div className="messages">
-        {messages.map((msg, index) => (
+    <div className="chat-container max-w-4xl mx-auto p-4">
+      <div className="messages space-y-4">
+        {filteredMessages.map((msg, index) => (
           <div
             key={msg._id}
             ref={index === messages.length - 1 ? lastMessageRef : null}
-            className="message"
+            className="message bg-white rounded-lg shadow p-4 break-words"
           >
             <p>
               <span
@@ -132,7 +147,7 @@ const Chat = () => {
                 🗑️
               </span>
               <strong>{msg.user}: <br /><br /></strong>
-              <span style={{ whiteSpace: 'pre-wrap' }}>{msg.text}</span>
+              <span style={{ whiteSpace: 'pre-wrap', overflowWrap: 'break-word', wordBreak: 'break-word', maxWidth: '100%', display: 'block' }}>{msg.text}</span>
             </p>
             {msg.file && (
               <a
@@ -165,20 +180,32 @@ const Chat = () => {
           }
         }}
       />
-      <div className="buttons mt-2">
-        <button
-          onClick={sendMessage}
-          className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
-        >
-          Send
-        </button>
+      <div className="flex flex-col sm:flex-row gap-2 mt-2">
+        <div className="flex-1 sm:max-w-[400px] order-2 sm:order-1">
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search messages..."
+            className="w-full p-2 border border-gray-300 rounded text-black focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+        
+        <div className="flex gap-2 order-1 sm:order-2">
+          <button
+            onClick={sendMessage}
+            className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
+          >
+            Send
+          </button>
 
-        <button
-          onClick={deleteAllMessages}
-          className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded ml-2"
-        >
-          Delete All
-        </button>
+          <button
+            onClick={deleteAllMessages}
+            className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
+          >
+            Delete All
+          </button>
+        </div>
       </div>
 
       {/* Mini Loader for Upload Progress */}
