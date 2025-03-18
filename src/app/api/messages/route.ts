@@ -35,10 +35,14 @@ export async function POST(request: Request) {
   
     if (!data) return NextResponse.json({ error: 'No data received' }, { status: 400 });
   
+    const { searchParams } = new URL(request.url);
+    const workspaceId = searchParams.get('workspaceId') || 'global';
+
     const newMessage = new Message({
       user: data.user,
       text: data.text,
       file: data.file || null,
+      workspaceId,
     });
   
     await newMessage.save();
@@ -46,9 +50,11 @@ export async function POST(request: Request) {
     return NextResponse.json(newMessage);
   }
   
-export async function GET() {
+export async function GET(request: Request) {
   await connectDB();
-  const messages = await Message.find();
+  const { searchParams } = new URL(request.url);
+  const workspaceId = searchParams.get('workspaceId') || 'global';
+  const messages = await Message.find({ workspaceId });
   return NextResponse.json(messages);
 }
 export async function DELETE(request: Request) {
@@ -76,8 +82,9 @@ export async function DELETE(request: Request) {
       await Message.findByIdAndDelete(id);
       return NextResponse.json({ message: 'Message and file deleted successfully' });
     } else {
-      // Delete all messages if no ID is provided
-      const messages = await Message.find();
+      // Delete all messages in the workspace if no ID is provided
+      const workspaceId = searchParams.get('workspaceId') || 'global';
+      const messages = await Message.find({ workspaceId });
       
       // Loop through all messages to delete their files (if any)
       for (const msg of messages) {
@@ -87,7 +94,7 @@ export async function DELETE(request: Request) {
       }
 
       // After file deletions, remove all messages from MongoDB
-      await Message.deleteMany();
+      await Message.deleteMany({ workspaceId });
       return NextResponse.json({ message: 'All messages and their files deleted successfully' });
     }
   } catch (error) {

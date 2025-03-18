@@ -4,7 +4,11 @@ import axios from 'axios';
 import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage';
 import { storage } from '../firebase'; // Import storage from your Firebase config
 
-const Chat = () => {
+interface ChatProps {
+  workspaceId?: string;
+}
+
+const Chat = ({ workspaceId = 'global' }: ChatProps) => {
   interface Message {
     _id: string;
     user: string;
@@ -47,7 +51,7 @@ const Chat = () => {
   };
 
   const fetchMessages = async () => {
-    const response = await axios.get('/api/messages');
+    const response = await axios.get(`/api/messages?workspaceId=${workspaceId}`);
     setMessages(response.data);
     setFilteredMessages(response.data);
   };
@@ -111,7 +115,7 @@ const Chat = () => {
     const pref = file ? file?.name + " " : "";
   
     // Now send the message with the file URL to your backend
-    const response = await axios.post('/api/messages', {
+    const response = await axios.post(`/api/messages?workspaceId=${workspaceId}`, {
       user: 'Msg', // Replace with actual user data
       text: pref + message || file?.name,
       file: fileUrl, // Send the Firebase download URL to the backend
@@ -133,7 +137,7 @@ const Chat = () => {
 
   const deleteMessage = async (id: string) => {
     try {
-      await axios.delete(`/api/messages?id=${id}`);
+      await axios.delete(`/api/messages?id=${id}&workspaceId=${workspaceId}`);
       setMessages(messages.filter((msg) => msg._id !== id));
     } catch (error) {
       console.error('Error deleting message:', error);
@@ -142,7 +146,7 @@ const Chat = () => {
 
   const deleteAllMessages = async () => {
     try {
-      await axios.delete('/api/messages');
+      await axios.delete(`/api/messages?workspaceId=${workspaceId}`);
       setMessages([]);
     } catch (error) {
       console.error('Error deleting all messages:', error);

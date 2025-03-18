@@ -5,6 +5,7 @@ const MessageSchema = new mongoose.Schema({
   text: { type: String },
   file: { type: String, required: false },
   timestamp: { type: Date, default: Date.now },
+  workspaceId: { type: String, default: 'global', required: true },
 });
 
 const Message = mongoose.models.Message || mongoose.model('Message', MessageSchema);
