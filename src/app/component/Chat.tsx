@@ -309,26 +309,26 @@ const Chat = ({ workspaceId = 'global' }: ChatProps) => {
           </div>
 
           <div className="flex gap-2 order-1 sm:order-2 h-[42px]">
-            <button
+          <button
               onClick={sendMessage}
-              className="flex-1 sm:flex-none bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-medium py-2.5 px-6 rounded-full shadow-sm hover:shadow transition-all duration-200 hover:scale-105 flex items-center justify-center gap-2"
+              className="flex-1 sm:flex-none bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-medium py-2.5 px-6 rounded-full shadow-sm hover:shadow transition-all duration-200 hover:scale-105 flex items-center justify-center gap-1 px-4 whitespace-nowrap"
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <line x1="22" y1="2" x2="11" y2="13"></line>
                 <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
               </svg>
-              Send
+              <strong>Send</strong>
             </button>
 
             <button
               onClick={deleteAllMessages}
-              className="flex-1 sm:flex-none bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-medium py-2.5 px-6 rounded-full shadow-sm hover:shadow transition-all duration-200 hover:scale-105 flex items-center justify-center gap-2"
+              className="flex-1 sm:w-auto flex-nowrap bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-medium py-2.5 px-6 rounded-full shadow-sm hover:shadow transition-all duration-200 hover:scale-105 flex items-center justify-center gap-1 px-4 whitespace-nowrap "
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <polyline points="3 6 5 6 21 6"></polyline>
                 <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
               </svg>
-              Delete All
+              <strong>Delete All</strong>
             </button>
           </div>
         </div>
