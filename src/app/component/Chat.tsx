@@ -21,6 +21,30 @@ const Chat = () => {
   const [uploadProgress, setUploadProgress] = useState<number | null>(null); // New state for upload progress
 
   const lastMessageRef = useRef<HTMLDivElement | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Helper function to convert URLs in text to clickable links
+  const convertUrlsToLinks = (text: string) => {
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    const parts = text.split(urlRegex);
+    
+    return parts.map((part, index) => {
+      if (part.match(urlRegex)) {
+        return (
+          <a
+            key={index}
+            href={part}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-600 hover:text-blue-800 underline"
+          >
+            {part}
+          </a>
+        );
+      }
+      return part;
+    });
+  };
 
   const fetchMessages = async () => {
     const response = await axios.get('/api/messages');
@@ -48,7 +72,7 @@ const Chat = () => {
     if (lastMessageRef.current) {
       lastMessageRef.current.scrollIntoView({ behavior: 'smooth' });
     }
-  }, [messages]);
+  }, [filteredMessages]);
 
   const sendMessage = async () => {
     if (!message && !file) {
@@ -96,6 +120,9 @@ const Chat = () => {
     setMessages((prevMessages) => [...prevMessages, response.data]);
     setMessage('');
     setFile(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
   };
   
   const copyToClipboard = (text: string) => {
@@ -128,7 +155,7 @@ const Chat = () => {
         {filteredMessages.map((msg, index) => (
           <div
             key={msg._id}
-            ref={index === messages.length - 1 ? lastMessageRef : null}
+            ref={index === filteredMessages.length - 1 ? lastMessageRef : null}
             className="message bg-white rounded-lg shadow p-4 break-words"
           >
             <p>
@@ -147,7 +174,9 @@ const Chat = () => {
                 🗑️
               </span>
               <strong>{msg.user}: <br /><br /></strong>
-              <span style={{ whiteSpace: 'pre-wrap', overflowWrap: 'break-word', wordBreak: 'break-word', maxWidth: '100%', display: 'block' }}>{msg.text}</span>
+              <span style={{ whiteSpace: 'pre-wrap', overflowWrap: 'break-word', wordBreak: 'break-word', maxWidth: '100%', display: 'block' }}>
+                {convertUrlsToLinks(msg.text)}
+              </span>
             </p>
             {msg.file && (
               <a
@@ -174,11 +203,13 @@ const Chat = () => {
       />
       <input
         type="file"
+        ref={fileInputRef}
         onChange={(e) => {
           if (e.target.files) {
             setFile(e.target.files[0]);
           }
         }}
+        className="mt-2"
       />
       <div className="flex flex-col sm:flex-row gap-2 mt-2">
         <div className="flex-1 sm:max-w-[400px] order-2 sm:order-1">
