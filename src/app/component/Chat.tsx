@@ -4,7 +4,7 @@ import axios from 'axios';
 import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage';
 import { storage } from '../firebase';
 import toast, { Toaster } from 'react-hot-toast';
-import Image from 'next/image';
+
 
 interface ChatProps {
   workspaceId?: string;
@@ -29,11 +29,30 @@ const Chat = ({ workspaceId = 'global' }: ChatProps) => {
   const lastMessageRef = useRef<HTMLDivElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Helper function to convert URLs in text to clickable links
+  // Helper function to highlight search terms
+  const highlightSearchTerm = (text: string) => {
+    if (!searchQuery || searchQuery.trim() === '') return text;
+    
+    const searchRegex = new RegExp(`(${searchQuery.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+    const parts = text.split(searchRegex);
+    
+    return parts.map((part, i) => {
+      if (part.toLowerCase() === searchQuery.toLowerCase()) {
+        return (
+          <mark key={i} className="bg-yellow-200 px-0.5 rounded">
+            {part}
+          </mark>
+        );
+      }
+      return part;
+    });
+  };
+
+  // Helper function to convert URLs to links and highlight search terms
   const convertUrlsToLinks = (text: string) => {
     const urlRegex = /(https?:\/\/[^\s]+)/g;
     const parts = text.split(urlRegex);
-
+    
     return parts.map((part, index) => {
       if (part.match(urlRegex)) {
         return (
@@ -44,11 +63,11 @@ const Chat = ({ workspaceId = 'global' }: ChatProps) => {
             rel="noopener noreferrer"
             className="text-blue-600 hover:text-blue-800 underline"
           >
-            {part}
+            {highlightSearchTerm(part)}
           </a>
         );
       }
-      return part;
+      return highlightSearchTerm(part);
     });
   };
 
@@ -134,6 +153,7 @@ const Chat = ({ workspaceId = 'global' }: ChatProps) => {
       toast.success('Message sent successfully');
     } catch (error) {
       toast.error('Failed to send message');
+      console.error(error);
     }
   };
 
@@ -150,6 +170,7 @@ const Chat = ({ workspaceId = 'global' }: ChatProps) => {
       toast.success('Message deleted successfully');
     } catch (error) {
       toast.error('Failed to delete message');
+      console.error(error);
     }
   };
 
@@ -160,6 +181,7 @@ const Chat = ({ workspaceId = 'global' }: ChatProps) => {
       toast.success('All messages deleted successfully');
     } catch (error) {
       toast.error('Failed to delete messages');
+      console.error(error);
     }
   };
 
