@@ -32,10 +32,10 @@ const Chat = ({ workspaceId = 'global' }: ChatProps) => {
   // Helper function to highlight search terms
   const highlightSearchTerm = (text: string) => {
     if (!searchQuery || searchQuery.trim() === '') return text;
-    
+
     const searchRegex = new RegExp(`(${searchQuery.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
     const parts = text.split(searchRegex);
-    
+
     return parts.map((part, i) => {
       if (part.toLowerCase() === searchQuery.toLowerCase()) {
         return (
@@ -52,7 +52,7 @@ const Chat = ({ workspaceId = 'global' }: ChatProps) => {
   const convertUrlsToLinks = (text: string) => {
     const urlRegex = /(https?:\/\/[^\s]+)/g;
     const parts = text.split(urlRegex);
-    
+
     return parts.map((part, index) => {
       if (part.match(urlRegex)) {
         return (
@@ -193,54 +193,69 @@ const Chat = ({ workspaceId = 'global' }: ChatProps) => {
           <div
             key={msg._id}
             ref={index === filteredMessages.length - 1 ? lastMessageRef : null}
-            className="message bg-white rounded-lg shadow p-4 break-words hover:shadow-md transition-shadow"
+            className="message glass-effect rounded-xl p-4 break-words hover:neo-shadow-sm transition-all duration-300 transform hover:-translate-y-1"
           >
             <div className="flex justify-between items-start mb-1">
               <strong className="text-blue-700">{msg.user}</strong>
               <div className="flex space-x-2">
                 <button
-                  className="transition-all duration-200 hover:scale-110 group bg-transparent p-0"
+                  className="glass-effect p-2 rounded-lg neo-shadow hover:neo-shadow-sm active:neo-shadow-inset transition-all duration-200 hover:scale-110 group bg-white/10 backdrop-blur-lg"
                   onClick={() => copyToClipboard(msg.text)}
                   title="Copy text"
                 >
                   <img
                     src="/copy.png"
                     alt="Copy"
-                    className="w-6 h-6 object-contain opacity-60 group-hover:opacity-100 transition-all"
+                    className="w-5 h-5 object-contain opacity-80 group-hover:opacity-100 transition-all"
                   />
                 </button>
                 <button
-                  className="transition-all duration-200 hover:bg-red-800 hover:scale-110 group bg-transparent p-0"
+                  className="glass-effect p-2 rounded-lg neo-shadow hover:neo-shadow-sm active:neo-shadow-inset transition-all duration-200 hover:scale-110 group bg-white/10 backdrop-blur-lg"
                   onClick={() => deleteMessage(msg._id)}
                   title="Delete message"
                 >
                   <img
                     src="/delete.svg"
                     alt="Delete"
-                    className="w-6 h-6 object-contain opacity-60 group-hover:opacity-100 transition-all"
+                    className="w-5 h-5 object-contain opacity-80 group-hover:opacity-100 transition-all"
                   />
                 </button>
               </div>
             </div>
-            <div className="mt-2">
-              <span style={{ whiteSpace: 'pre-wrap', overflowWrap: 'break-word', wordBreak: 'break-word', maxWidth: '100%', display: 'block' }}>
-                {convertUrlsToLinks(msg.text)}
-              </span>
-            </div>
-            {msg.file && (
-              <a
-                href={msg.file}
-                download={msg.text.split(' ')[0]}
-                target='_blank'
-                className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-medium py-2 px-6 rounded-full shadow-sm hover:shadow mt-3 inline-flex items-center gap-2 transition-all duration-200 hover:scale-105"
-              >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                  <polyline points="7 10 12 15 17 10"></polyline>
-                  <line x1="12" y1="15" x2="12" y2="3"></line>
-                </svg>
-                Download File
-              </a>
+            {msg.file ? (
+              <>
+                <div className="mt-3 pb-2">
+                  <a
+                    href={msg.file}
+                    download={msg.text.split(' ')[0]}
+                    target='_blank'
+                    className="inline-flex items-center gap-2 px-3 py-1.5 glass-effect bg-gradient-to-r from-amber-400/30 to-amber-500/30 rounded-lg text-amber-700 neo-shadow hover:neo-shadow-sm active:neo-shadow-inset transition-all duration-300 cursor-pointer group backdrop-blur-lg"
+                  >
+                    <div className="relative w-5 h-5">
+                      <svg className="w-full h-full" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+                      </svg>
+                      <svg className="absolute inset-0 w-full h-full opacity-0 group-hover:opacity-100 transition-opacity scale-75" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                        <polyline points="7 10 12 14 17 10" />
+                      </svg>
+                    </div>
+                    <span className="text-base font-semibold">{msg.text.split(' ')[0]}</span>
+                  </a>
+                </div>
+                {msg.text.substring(msg.text.split(' ')[0].length).trim() && (
+                  <div className="mt-3">
+                    <span style={{ whiteSpace: 'pre-wrap', overflowWrap: 'break-word', wordBreak: 'break-word', maxWidth: '100%', display: 'block' }}>
+                      {convertUrlsToLinks(msg.text.substring(msg.text.split(' ')[0].length).trim())}
+                    </span>
+                  </div>
+                )}
+              </>
+            ) : (
+              <div className="mt-2">
+                <span style={{ whiteSpace: 'pre-wrap', overflowWrap: 'break-word', wordBreak: 'break-word', maxWidth: '100%', display: 'block' }}>
+                  {convertUrlsToLinks(msg.text)}
+                </span>
+              </div>
             )}
             {msg.image && <img src={msg.image} alt="message" className="mt-1 rounded-lg shadow-md" />}
           </div>
@@ -252,14 +267,14 @@ const Chat = ({ workspaceId = 'global' }: ChatProps) => {
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           placeholder="Type a message..."
-          className="w-full p-3 border border-gray-300 rounded-lg resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-shadow"
+          className="w-full p-4 rounded-xl neo-shadow-inset bg-[#f0f4f8] border-none resize-none focus:outline-none transition-all duration-300"
           rows={3}
           style={{ maxHeight: '150px', overflowY: 'auto', color: "black" }}
         />
 
         <div className="flex items-center space-x-2">
           <label className="flex-1 cursor-pointer">
-            <div className="bg-blue-50 border-2 border-blue-200 rounded-lg px-4 py-2 text-blue-700 hover:bg-blue-100 transition-colors flex items-center justify-center gap-2">
+            <div className="neo-shadow rounded-xl px-4 py-3 text-blue-700 hover:neo-shadow-sm active:neo-shadow-inset transition-all duration-300 flex items-center justify-center gap-2 bg-[#f0f4f8]">
               <span className="text-xl">📎</span>
               {file ? (
                 <span className="truncate">{file.name}</span>
@@ -289,7 +304,7 @@ const Chat = ({ workspaceId = 'global' }: ChatProps) => {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search messages..."
-                className="w-full pl-11 pr-10 py-3 border border-gray-300 rounded-lg text-black focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-shadow"
+                className="w-full pl-11 pr-10 py-3 rounded-xl neo-shadow-inset bg-[#f0f4f8] border-none text-black focus:outline-none transition-all duration-300"
               />
               {searchQuery && (
                 <button
@@ -309,9 +324,9 @@ const Chat = ({ workspaceId = 'global' }: ChatProps) => {
           </div>
 
           <div className="flex gap-2 order-1 sm:order-2 h-[42px]">
-          <button
+            <button
               onClick={sendMessage}
-              className="flex-1 sm:flex-none bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-medium py-2.5 px-6 rounded-full shadow-sm hover:shadow transition-all duration-200 hover:scale-105 flex items-center justify-center gap-1 px-4 whitespace-nowrap"
+              className="flex-1 sm:flex-none neo-shadow bg-[#f0f4f8] text-emerald-600 hover:bg-emerald-500 hover:text-white font-semibold py-3 px-6 rounded-xl hover:neo-shadow-sm active:neo-shadow-inset transition-all duration-300 hover:scale-105 flex items-center justify-center gap-2"
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <line x1="22" y1="2" x2="11" y2="13"></line>
@@ -322,7 +337,7 @@ const Chat = ({ workspaceId = 'global' }: ChatProps) => {
 
             <button
               onClick={deleteAllMessages}
-              className="flex-1 sm:w-auto flex-nowrap bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-medium py-2.5 px-6 rounded-full shadow-sm hover:shadow transition-all duration-200 hover:scale-105 flex items-center justify-center gap-1 px-4 whitespace-nowrap "
+              className="flex-1 sm:flex-none neo-shadow bg-[#f0f4f8] text-rose-600 hover:bg-rose-500 hover:text-white font-semibold py-3 px-6 rounded-xl hover:neo-shadow-sm active:neo-shadow-inset transition-all duration-300 hover:scale-105 flex items-center justify-center gap-2"
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <polyline points="3 6 5 6 21 6"></polyline>
@@ -330,19 +345,20 @@ const Chat = ({ workspaceId = 'global' }: ChatProps) => {
               </svg>
               <strong>Delete All</strong>
             </button>
+
           </div>
         </div>
       </div>
 
       {uploadProgress !== null && (
-        <div className="mt-4 bg-blue-50 rounded-lg p-4">
-          <div className="h-2 bg-gray-200 rounded">
+        <div className="mt-4 glass-effect rounded-xl p-4">
+          <div className="h-3 neo-shadow-inset bg-[#f0f4f8] rounded-lg overflow-hidden">
             <div
-              className="h-2 bg-blue-500 rounded transition-all duration-300"
+              className="h-full bg-gradient-to-r from-blue-400/80 to-blue-500/80 rounded-lg transition-all duration-300 backdrop-blur-lg"
               style={{ width: `${uploadProgress}%` }}
             />
           </div>
-          <span className="text-sm text-blue-600 mt-1">
+          <span className="text-sm text-blue-600 mt-2 block">
             Uploading: {Math.round(uploadProgress)}%
           </span>
         </div>
