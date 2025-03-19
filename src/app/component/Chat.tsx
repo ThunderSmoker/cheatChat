@@ -190,7 +190,7 @@ const Chat = ({ workspaceId = 'global' }: ChatProps) => {
       <Toaster 
         position="top-right" 
         toastOptions={{
-          duration: 1500,
+          duration: 1000,
         }}
       />
       <div className="messages space-y-4">
@@ -244,7 +244,7 @@ const Chat = ({ workspaceId = 'global' }: ChatProps) => {
                         <polyline points="7 10 12 14 17 10" />
                       </svg>
                     </div>
-                    <span className="text-base font-semibold">{msg.text.split(' ')[0]}</span>
+                    <span className="text-base font-semibold break-all">{msg.text.split(' ')[0]}</span>
                   </a>
                 </div>
                 {msg.text.substring(msg.text.split(' ')[0].length).trim() && (
@@ -282,9 +282,9 @@ const Chat = ({ workspaceId = 'global' }: ChatProps) => {
             <div className="neo-shadow rounded-xl px-4 py-3 text-blue-700 hover:neo-shadow-sm active:neo-shadow-inset transition-all duration-300 flex items-center justify-center gap-2 bg-[#f0f4f8]">
               <span className="text-xl">📎</span>
               {file ? (
-                <span className="truncate">{file.name}</span>
+                <span className="break-all">{file.name}</span>
               ) : (
-                <span>Choose a file</span>
+                <span><strong>Choose a file</strong></span>
               )}
             </div>
             <input
@@ -331,7 +331,7 @@ const Chat = ({ workspaceId = 'global' }: ChatProps) => {
           <div className="flex gap-2 order-1 sm:order-2 h-[42px]">
             <button
               onClick={sendMessage}
-              className="flex-1 sm:flex-none neo-shadow bg-[#f0f4f8] text-emerald-600 hover-bg-emerald font-semibold py-3 px-6 rounded-xl hover:neo-shadow-sm active:neo-shadow-inset transition-all duration-200 hover:scale-105 flex items-center justify-center gap-2 outline-none"
+              className="flex-1 sm:flex-none neo-shadow bg-[#f0f4f8] text-emerald-600 hover:bg-emerald-500 hover:text-white focus:bg-emerald-500 focus:text-white active:bg-emerald-600 font-semibold py-3 px-6 rounded-xl hover:neo-shadow-sm active:neo-shadow-inset transition-all duration-300 hover:scale-105 flex items-center justify-center gap-2"
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <line x1="22" y1="2" x2="11" y2="13"></line>
@@ -342,7 +342,7 @@ const Chat = ({ workspaceId = 'global' }: ChatProps) => {
 
             <button
               onClick={deleteAllMessages}
-              className="flex-1 sm:flex-none neo-shadow bg-[#f0f4f8] text-rose-600 hover-bg-rose font-semibold py-3 px-6 rounded-xl hover:neo-shadow-sm active:neo-shadow-inset transition-all duration-200 hover:scale-105 flex items-center justify-center gap-2 outline-none"
+              className="flex-1 sm:flex-none neo-shadow bg-[#f0f4f8] text-rose-600 hover:bg-rose-500 hover:text-white focus:bg-rose-500 focus:text-white active:bg-rose-600 font-semibold py-3 px-6 rounded-xl hover:neo-shadow-sm active:neo-shadow-inset transition-all duration-300 hover:scale-105 flex items-center justify-center gap-2 whitespace-nowrap"
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <polyline points="3 6 5 6 21 6"></polyline>
