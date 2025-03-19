@@ -187,7 +187,12 @@ const Chat = ({ workspaceId = 'global' }: ChatProps) => {
 
   return (
     <div className="chat-container max-w-4xl mx-auto p-4">
-      <Toaster position="top-right" />
+      <Toaster 
+        position="top-right" 
+        toastOptions={{
+          duration: 1500,
+        }}
+      />
       <div className="messages space-y-4">
         {filteredMessages.map((msg, index) => (
           <div
@@ -326,7 +331,7 @@ const Chat = ({ workspaceId = 'global' }: ChatProps) => {
           <div className="flex gap-2 order-1 sm:order-2 h-[42px]">
             <button
               onClick={sendMessage}
-              className="flex-1 sm:flex-none neo-shadow bg-[#f0f4f8] text-emerald-600 hover:bg-emerald-500 hover:text-white font-semibold py-3 px-6 rounded-xl hover:neo-shadow-sm active:neo-shadow-inset transition-all duration-300 hover:scale-105 flex items-center justify-center gap-2"
+              className="flex-1 sm:flex-none neo-shadow bg-[#f0f4f8] text-emerald-600 hover-bg-emerald font-semibold py-3 px-6 rounded-xl hover:neo-shadow-sm active:neo-shadow-inset transition-all duration-200 hover:scale-105 flex items-center justify-center gap-2 outline-none"
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <line x1="22" y1="2" x2="11" y2="13"></line>
@@ -337,7 +342,7 @@ const Chat = ({ workspaceId = 'global' }: ChatProps) => {
 
             <button
               onClick={deleteAllMessages}
-              className="flex-1 sm:flex-none neo-shadow bg-[#f0f4f8] text-rose-600 hover:bg-rose-500 hover:text-white font-semibold py-3 px-6 rounded-xl hover:neo-shadow-sm active:neo-shadow-inset transition-all duration-300 hover:scale-105 flex items-center justify-center gap-2"
+              className="flex-1 sm:flex-none neo-shadow bg-[#f0f4f8] text-rose-600 hover-bg-rose font-semibold py-3 px-6 rounded-xl hover:neo-shadow-sm active:neo-shadow-inset transition-all duration-200 hover:scale-105 flex items-center justify-center gap-2 outline-none"
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <polyline points="3 6 5 6 21 6"></polyline>
