@@ -77,6 +77,24 @@ const Chat = ({ workspaceId = 'global' }: ChatProps) => {
     setFilteredMessages(response.data);
   };
 
+  const extractFileAndDescription = (text: string) => {
+    if (!text) return { fileName: "", description: "" };
+
+    const firstDotIndex = text.indexOf(".");
+    if (firstDotIndex === -1) {
+      return { fileName: text.trim(), description: "" };
+    }
+
+    // include extension
+    const afterDot = text.substring(firstDotIndex + 1);
+    const extension = afterDot.split(" ")[0];
+    const fileName = text.substring(0, firstDotIndex + 1 + extension.length);
+
+    const description = text.substring(fileName.length).trim();
+    return { fileName, description };
+  }
+
+
   useEffect(() => {
     fetchMessages();
   }, []);
@@ -187,8 +205,8 @@ const Chat = ({ workspaceId = 'global' }: ChatProps) => {
 
   return (
     <div className="chat-container max-w-4xl mx-auto p-4">
-      <Toaster 
-        position="top-right" 
+      <Toaster
+        position="top-right"
         toastOptions={{
           duration: 1000,
         }}
@@ -228,36 +246,75 @@ const Chat = ({ workspaceId = 'global' }: ChatProps) => {
               </div>
             </div>
             {msg.file ? (
-              <>
-                <div className="mt-3 pb-2">
-                  <a
-                    href={msg.file}
-                    download={msg.text.split(' ')[0]}
-                    target='_blank'
-                    className="inline-flex items-center gap-2 px-3 py-1.5 glass-effect bg-gradient-to-r from-amber-400/30 to-amber-500/30 rounded-lg text-amber-700 neo-shadow hover:neo-shadow-sm active:neo-shadow-inset transition-all duration-300 cursor-pointer group backdrop-blur-lg"
-                  >
-                    <div className="relative w-5 h-5">
-                      <svg className="w-full h-full" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
-                      </svg>
-                      <svg className="absolute inset-0 w-full h-full opacity-0 group-hover:opacity-100 transition-opacity scale-75" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                        <polyline points="7 10 12 14 17 10" />
-                      </svg>
+              (() => {
+                const { fileName, description } = extractFileAndDescription(msg.text);
+
+                return (
+                  <>
+                    <div className="mt-3 pb-2">
+                      <a
+                        href={msg.file}
+                        download={fileName}
+                        target="_blank"
+                        className="inline-flex items-center gap-2 px-3 py-1.5 glass-effect bg-gradient-to-r from-amber-400/30 to-amber-500/30 rounded-lg text-amber-700 neo-shadow hover:neo-shadow-sm active:neo-shadow-inset transition-all duration-300 cursor-pointer group backdrop-blur-lg"
+                      >
+                        <div className="relative w-5 h-5">
+                          <svg
+                            className="w-full h-full"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"
+                            />
+                          </svg>
+                          <svg
+                            className="absolute inset-0 w-full h-full opacity-0 group-hover:opacity-100 transition-opacity scale-75"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2.5"
+                          >
+                            <polyline points="7 10 12 14 17 10" />
+                          </svg>
+                        </div>
+                        <span className="text-base font-semibold break-all">{fileName}</span>
+                      </a>
                     </div>
-                    <span className="text-base font-semibold break-all">{msg.text.split(' ')[0]}</span>
-                  </a>
-                </div>
-                {msg.text.substring(msg.text.split(' ')[0].length).trim() && (
-                  <div className="mt-3">
-                    <span style={{ whiteSpace: 'pre-wrap', overflowWrap: 'break-word', wordBreak: 'break-word', maxWidth: '100%', display: 'block' }}>
-                      {convertUrlsToLinks(msg.text.substring(msg.text.split(' ')[0].length).trim())}
-                    </span>
-                  </div>
-                )}
-              </>
+
+                    {description && (
+                      <div className="mt-3">
+                        <span
+                          style={{
+                            whiteSpace: "pre-wrap",
+                            overflowWrap: "break-word",
+                            wordBreak: "break-word",
+                            maxWidth: "100%",
+                            display: "block",
+                          }}
+                        >
+                          {convertUrlsToLinks(description)}
+                        </span>
+                      </div>
+                    )}
+                  </>
+                );
+              })()
             ) : (
               <div className="mt-2">
-                <span style={{ whiteSpace: 'pre-wrap', overflowWrap: 'break-word', wordBreak: 'break-word', maxWidth: '100%', display: 'block' }}>
+                <span
+                  style={{
+                    whiteSpace: "pre-wrap",
+                    overflowWrap: "break-word",
+                    wordBreak: "break-word",
+                    maxWidth: "100%",
+                    display: "block",
+                  }}
+                >
                   {convertUrlsToLinks(msg.text)}
                 </span>
               </div>
