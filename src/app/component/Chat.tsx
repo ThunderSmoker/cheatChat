@@ -1,8 +1,6 @@
 'use client';
 import React, { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
-import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage';
-import { storage } from '../firebase';
 import toast, { Toaster } from 'react-hot-toast';
 
 
@@ -126,31 +124,35 @@ const Chat = ({ workspaceId = 'global' }: ChatProps) => {
     let fileUrl = null;
 
     if (file) {
-      const storageRef = ref(storage, `files/${file.name}`);
-      const uploadTask = uploadBytesResumable(storageRef, file);
-
-      // Wait for the file upload to complete and get the download URL
-      fileUrl = await new Promise<string>((resolve, reject) => {
-        uploadTask.on(
-          'state_changed',
-          (snapshot) => {
-            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+      const signatureResponse = await axios.post('/api/upload-signature', {
+        fileName: file.name,
+        fileType: file.type,
+      });
+      
+      const { signature, cloudName, apiKey, folder, publicId, timestamp } = signatureResponse.data;
+      
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('api_key', apiKey);
+      formData.append('timestamp', timestamp.toString());
+      formData.append('signature', signature);
+      formData.append('folder', folder);
+      formData.append('public_id', publicId);
+      
+      const uploadResponse = await axios.post(
+        `https://api.cloudinary.com/v1_1/${cloudName}/auto/upload`,
+        formData,
+        {
+          onUploadProgress: (progressEvent) => {
+            const progress = Math.round((progressEvent.loaded * 100) / (progressEvent.total || 1));
             setUploadProgress(progress);
           },
-          (error) => {
-            console.error('Upload error:', error);
-            setUploadProgress(null);
-            toast.error('Failed to upload file');
-            reject(error);
-          },
-          async () => {
-            const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-            setUploadProgress(null);
-            toast.success('File uploaded successfully');
-            resolve(downloadURL);
-          }
-        );
-      });
+        }
+      );
+      
+      fileUrl = uploadResponse.data.secure_url;
+      setUploadProgress(null);
+      toast.success('File uploaded successfully');
     }
 
     const pref = file ? file?.name + " " : "";

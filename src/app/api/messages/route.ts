@@ -1,15 +1,12 @@
 import { NextResponse } from 'next/server';
 import mongoose from 'mongoose';
-import Message from '../../models/Message'; // Create a message model
-import { getStorage, ref, deleteObject } from 'firebase/storage';
-import firebaseApp from '@/app/firebase';
+import Message from '../../models/Message';
+import cloudinary from '@/app/cloudinary';
 
-const storage = getStorage(firebaseApp);
-const deleteFile = async (filePath: string | undefined) => {
-  const fileRef = ref(storage, filePath);
+const deleteFile = async (publicId: string) => {
   try {
-    await deleteObject(fileRef);
-    console.log('File successfully deleted');
+    const result = await cloudinary.uploader.destroy(publicId);
+    console.log('File deleted:', result);
   } catch (error) {
     console.error('Failed to delete file:', error);
   }
@@ -74,8 +71,7 @@ export async function DELETE(request: Request) {
 
       // Check if the message contains a file, and handle file deletion logic
       if (messageToDelete.file) {
-        // Delete file from Firebase Storage
-        await deleteFileFromFirebaseStorage(messageToDelete.file);
+        await deleteFileFromCloudinary(messageToDelete.file);
       }
 
       // After file deletion, remove the message from MongoDB
@@ -89,7 +85,7 @@ export async function DELETE(request: Request) {
       // Loop through all messages to delete their files (if any)
       for (const msg of messages) {
         if (msg.file) {
-          await deleteFileFromFirebaseStorage(msg.file); // Delete each file from Firebase
+          await deleteFileFromCloudinary(msg.file);
         }
       }
 
@@ -103,24 +99,21 @@ export async function DELETE(request: Request) {
   }
 }
 
-// Function to delete files from Firebase Storage
-async function deleteFileFromFirebaseStorage(fileUrl: string) {
-try {
-  // Extract the Firebase Storage file path from the URL
-  const filePath = extractFilePathFromUrl(fileUrl);
-
-  // Delete the file from Firebase Storage
-  await deleteFile(filePath);
-  console.log(`File ${fileUrl} deleted successfully from Firebase`);
-} catch (error) {
-  console.error('Error deleting file from Firebase Storage:', error);
-  throw new Error('Failed to delete file from Firebase Storage');
-}
+// Function to delete files from Cloudinary
+async function deleteFileFromCloudinary(fileUrl: string) {
+  try {
+    const publicId = extractPublicIdFromUrl(fileUrl);
+    await deleteFile(publicId);
+    console.log(`File ${fileUrl} deleted successfully from Cloudinary`);
+  } catch (error) {
+    console.error('Error deleting file from Cloudinary:', error);
+    throw new Error('Failed to delete file from Cloudinary');
+  }
 }
 
-// Helper function to extract file path from Firebase Storage URL
-function extractFilePathFromUrl(fileUrl: string) {
-const regex = /\/o\/(.+)\?/; // Extract the part after '/o/' and before the query params
-const match = fileUrl.match(regex);
-return match ? decodeURIComponent(match[1]) : '';
+// Helper function to extract public ID from Cloudinary URL
+function extractPublicIdFromUrl(fileUrl: string) {
+  const regex = /\/upload\/(?:v\d+\/)?(.+)\.[^.]+$/;
+  const match = fileUrl.match(regex);
+  return match ? match[1] : '';
 }
